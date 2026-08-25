@@ -55,14 +55,14 @@ organizers in a more practical way.
 
 ## Interface preview
 
-![Interface overview](images/map-interface-overview.jpg)
+![Interface overview](map-interface-overview.jpg)
 
 Additional screenshots from the January 10 race map:
 
-![January 10 at 2:45 PM](images/jan10-1445.jpg)
-![January 10 at 3:15 PM](images/jan10-1515.jpg)
-![January 10 at 3:45 PM](images/jan10-1545.jpg)
-![January 10 at 4:15 PM](images/jan10-1615.jpg)
+![January 10 at 2:45 PM](jan10-1445.jpg)
+![January 10 at 3:15 PM](an10-1515.jpg)
+![January 10 at 3:45 PM](jan10-1545.jpg)
+![January 10 at 4:15 PM](jan10-1615.jpg)
 
 ## Repository contents
 
