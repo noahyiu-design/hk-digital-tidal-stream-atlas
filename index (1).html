@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive GIS atlas for tidal stream visualization in Hong Kong sailing race planning.">
+  <title>Hong Kong Digital Tidal Stream Atlas</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    /* Art direction: marine field notebook → calm, data-led, editorial
+       Palette: nautical ink and tide blue; Typography: Zodiak + Satoshi; Density: spacious */
+    :root, [data-theme="light"] {
+      --bg: #f5f7f4;
+      --surface: #ffffff;
+      --surface-alt: #eaf1f0;
+      --ink: #122b35;
+      --muted: #53666a;
+      --line: #cdd9d8;
+      --tide: #006d77;
+      --tide-dark: #004c55;
+      --tide-pale: #cce4e1;
+      --coral: #c6472d;
+      --font-display: 'Zodiak', Georgia, serif;
+      --font-body: 'Satoshi', Arial, sans-serif;
+      --shadow: 0 18px 42px rgba(18,43,53,.12);
+      --radius: 18px;
+      --radius-small: 10px;
+    }
+    [data-theme="dark"] {
+      --bg: #101d23;
+      --surface: #142831;
+      --surface-alt: #19343d;
+      --ink: #edf5f3;
+      --muted: #b3c3c2;
+      --line: #33505a;
+      --tide: #66b5bc;
+      --tide-dark: #9ad3d5;
+      --tide-pale: #1d3d45;
+      --coral: #f18d72;
+      --shadow: 0 18px 42px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--bg); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+    a { color: inherit; }
+    .skip { position:absolute; left:12px; top:-60px; padding:10px 14px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-small); z-index:99; }
+    .skip:focus { top:12px; }
+    .shell { width:min(1180px, calc(100% - 40px)); margin:auto; }
+    header { position: sticky; top: 0; z-index: 10; border-bottom:1px solid rgba(205,217,216,.8); background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(12px); }
+    .nav { min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { display:flex; align-items:center; gap:10px; text-decoration:none; font-weight:700; letter-spacing:.01em; }
+    .mark { width:30px; height:30px; color:var(--tide); }
+    .navlinks { display:flex; align-items:center; gap:18px; font-size:14px; }
+    .navlinks a { text-decoration:none; color:var(--muted); }
+    .navlinks a:hover { color:var(--tide); }
+    .theme { min-width:44px; min-height:44px; border:1px solid var(--line); border-radius:50%; color:var(--ink); background:var(--surface); cursor:pointer; }
+    .hero { padding: clamp(64px, 11vw, 144px) 0 clamp(48px, 7vw, 96px); }
+    .eyebrow { display:flex; align-items:center; gap:10px; color:var(--tide); font-size:13px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--coral); }
+    h1, h2, h3 { font-family:var(--font-display); line-height:1.04; margin:0; }
+    h1 { max-width:950px; margin-top:22px; font-size:clamp(48px, 7.2vw, 100px); font-weight:500; letter-spacing:-.045em; }
+    .lead { max-width:690px; margin:28px 0 0; font-size:clamp(18px, 2vw, 24px); line-height:1.45; color:var(--muted); }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:32px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:999px; border:1px solid var(--tide); background:var(--tide); color:#fff; font-weight:700; text-decoration:none; transition:transform .18s ease, background .18s ease; }
+    .button:hover { background:var(--tide-dark); transform:translateY(-2px); }
+    .button.secondary { background:transparent; color:var(--tide); }
+    .button.secondary:hover { background:var(--tide-pale); }
+    .hero-image { border-radius:var(--radius); overflow:hidden; background:var(--surface-alt); box-shadow:var(--shadow); border:1px solid var(--line); }
+    .hero-image img { display:block; width:100%; height:auto; aspect-ratio:16/8; object-fit:cover; object-position:center; }
+    .caption { padding:14px 18px; color:var(--muted); font-size:14px; background:var(--surface); }
+    section { padding:clamp(64px, 9vw, 120px) 0; border-top:1px solid var(--line); }
+    .section-grid { display:grid; grid-template-columns:minmax(0, .72fr) minmax(0, 1.28fr); gap:clamp(28px, 7vw, 110px); }
+    .section-label { color:var(--tide); text-transform:uppercase; letter-spacing:.12em; font-size:13px; font-weight:700; margin:0 0 14px; }
+    h2 { font-size:clamp(32px, 4.1vw, 56px); font-weight:500; letter-spacing:-.035em; }
+    .body-copy { color:var(--muted); font-size:18px; }
+    .body-copy p:first-child { margin-top:0; }
+    .body-copy p:last-child { margin-bottom:0; }
+    .feature-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin-top:28px; }
+    .card { padding:24px; border:1px solid var(--line); border-radius:var(--radius-small); background:var(--surface); }
+    .card-num { color:var(--coral); font-family:var(--font-display); font-size:28px; }
+    .card h3 { margin:10px 0 8px; font-family:var(--font-body); font-size:18px; letter-spacing:0; }
+    .card p { margin:0; color:var(--muted); font-size:15px; }
+    .map-wrap { border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface); box-shadow:var(--shadow); }
+    .map-wrap iframe { width:100%; min-height:640px; display:block; border:0; }
+    .map-note { padding:14px 18px; font-size:14px; color:var(--muted); background:var(--surface); }
+    .workflow { display:grid; gap:0; margin-top:18px; border-top:1px solid var(--line); }
+    .workflow-item { display:grid; grid-template-columns:54px 1fr; gap:16px; padding:20px 0; border-bottom:1px solid var(--line); }
+    .workflow-item span { color:var(--coral); font-weight:700; }
+    .workflow-item h3 { font-family:var(--font-body); font-size:18px; letter-spacing:0; margin:0 0 4px; }
+    .workflow-item p { margin:0; color:var(--muted); }
+    .gallery { display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; }
+    .gallery figure { margin:0; overflow:hidden; border-radius:var(--radius-small); border:1px solid var(--line); background:var(--surface); }
+    .gallery img { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; }
+    .gallery figcaption { padding:10px 12px; color:var(--muted); font-size:13px; }
+    .callout { padding:clamp(30px, 5vw, 56px); border-radius:var(--radius); background:var(--tide); color:#fff; }
+    .callout h2 { max-width:720px; }
+    .callout p { max-width:670px; margin:18px 0 0; color:#d9eeee; font-size:18px; }
+    .callout .button { margin-top:26px; background:#fff; border-color:#fff; color:var(--tide-dark); }
+    footer { padding:34px 0 56px; color:var(--muted); font-size:14px; }
+    .footer-line { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; border-top:1px solid var(--line); padding-top:22px; }
+    @media (max-width:760px) {
+      .shell { width:min(100% - 28px, 1180px); }
+      .navlinks a:not(.repo-link) { display:none; }
+      .section-grid { grid-template-columns:1fr; gap:28px; }
+      .feature-grid, .gallery { grid-template-columns:1fr; }
+      .map-wrap iframe { min-height:480px; }
+      .hero { padding-top:72px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to project content</a>
+  <header>
+    <nav class="shell nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Hong Kong Digital Tidal Stream Atlas home">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M5 30c6-13 13-13 19 0s13 13 19 0" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M5 18c6-9 13-9 19 0s13 9 19 0" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+        <span>HK Tidal Atlas</span>
+      </a>
+      <div class="navlinks">
+        <a href="#atlas">Live map</a>
+        <a href="#method">How I built it</a>
+        <a href="#evolution">In motion</a>
+        <a class="repo-link" href="https://github.com/noahyiu-design/hk-digital-tidal-stream-atlas" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <button class="theme" type="button" data-theme-toggle aria-label="Switch color theme">◐</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="shell">
+        <p class="eyebrow"><span class="dot"></span> Independent GIS project · Hong Kong</p>
+        <h1>Read the current<br>before the start.</h1>
+        <p class="lead">An interactive tidal-stream map built to help sailors, coaches, and race organizers make sense of changing current conditions before a race in Hong Kong.</p>
+        <div class="actions">
+          <a class="button" href="#atlas">Explore the map</a>
+          <a class="button secondary" href="https://github.com/noahyiu-design/hk-digital-tidal-stream-atlas" target="_blank" rel="noopener noreferrer">View the project on GitHub ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="shell hero-image">
+      <img src="images/map-interface-overview.jpg" alt="Interactive ArcGIS map of Hong Kong showing coloured tidal-current vectors, legend, and a time slider." width="1600" height="900">
+      <div class="caption">January 10 race-window map. The time slider lets users follow how predicted tidal streams shift through the afternoon.</div>
+    </div>
+
+    <section>
+      <div class="shell section-grid">
+        <div>
+          <p class="section-label">Why I made this</p>
+          <h2>Before a race, there is rarely much time to figure out the tide.</h2>
+        </div>
+        <div class="body-copy">
+          <p>As a sailor, I wanted a quicker way to turn tidal predictions into something useful on a race day. Current can influence where boats line up, how they approach marks, which side of the course is worth considering, and when a maneuver needs to happen.</p>
+          <p>Traditional tidal-stream information can be hard to read quickly. This project puts it on an interactive map, so users can see how the current changes from place to place and over time.</p>
+          <div class="feature-grid">
+            <article class="card"><div class="card-num">01</div><h3>Move through time</h3><p>Step through the race window in 15-minute intervals.</p></article>
+            <article class="card"><div class="card-num">02</div><h3>See local differences</h3><p>Compare current direction and strength across the sailing area.</p></article>
+            <article class="card"><div class="card-num">03</div><h3>Check the details</h3><p>Click a vector for its coordinates, direction, and speed.</p></article>
+            <article class="card"><div class="card-num">04</div><h3>Built around sailing</h3><p>Designed from a real race-planning problem, not just as a map exercise.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="atlas">
+      <div class="shell section-grid">
+        <div>
+          <p class="section-label">Live map</p>
+          <h2>January 10 race window</h2>
+          <p class="body-copy">This is the main version of the atlas. Drag the time slider and look for patterns in the vector field as the predicted tide changes during the race window.</p>
+          <p><a class="button secondary" href="https://hkis.maps.arcgis.com/apps/mapviewer/index.html?webmap=9f6f92e652794371b456d7e859ee76d1" target="_blank" rel="noopener noreferrer">Open the map full screen ↗</a></p>
+        </div>
+        <div class="map-wrap">
+          <iframe title="Hong Kong Digital Tidal Stream Atlas — January 10 map" src="https://hkis.maps.arcgis.com/apps/mapviewer/index.html?webmap=9f6f92e652794371b456d7e859ee76d1" loading="lazy" allowfullscreen></iframe>
+          <div class="map-note">If the embedded ArcGIS viewer does not load, use <a href="https://hkis.maps.arcgis.com/apps/mapviewer/index.html?webmap=9f6f92e652794371b456d7e859ee76d1" target="_blank" rel="noopener noreferrer">the full-screen version of the map</a>.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="shell section-grid">
+        <div>
+          <p class="section-label">How I built it</p>
+          <h2>From raw tide data to a map you can use.</h2>
+          <p class="body-copy">I used ArcGIS Pro to prepare the data and build the visual system, then published the finished map through ArcGIS Online.</p>
+        </div>
+        <div>
+          <div class="workflow">
+            <article class="workflow-item"><span>01</span><div><h3>Download the tidal data</h3><p>Published tidal prediction data were downloaded from the Hong Kong Tidal Stream Prediction System.</p></div></article>
+            <article class="workflow-item"><span>02</span><div><h3>Clean and reshape the dataset</h3><p>The data were cleaned and unpivoted so they could be used properly in ArcGIS Pro.</p></div></article>
+            <article class="workflow-item"><span>03</span><div><h3>Bring the data into ArcGIS Pro</h3><p>The prepared dataset was imported into ArcGIS Pro for mapping and further processing.</p></div></article>
+            <article class="workflow-item"><span>04</span><div><h3>Turn the records into map vectors</h3><p>The dataset was converted into mapped vector features, allowing each tidal observation to be placed on the map.</p></div></article>
+            <article class="workflow-item"><span>05</span><div><h3>Add the time frame</h3><p>A Time Frame field was added so the map could show the progressive change in tides at 15-minute intervals.</p></div></article>
+            <article class="workflow-item"><span>06</span><div><h3>Set up the visual language</h3><p>Symbology was configured to show current direction and current speed visually: color represents direction in degrees, and arrow size represents speed in knots.</p></div></article>
+            <article class="workflow-item"><span>07</span><div><h3>Publish the interactive map</h3><p>The project was published to ArcGIS Online as an interactive web map with a time slider, legend, and clickable vector details.</p></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evolution">
+      <div class="shell section-grid">
+        <div>
+          <p class="section-label">What changes over time</p>
+          <h2>The same water can look very different an hour later.</h2>
+          <p class="body-copy">These screenshots are taken from the same January 10 map at different moments in the race window. They show why it helps to look at current as a changing field instead of a single number or static chart.</p>
+        </div>
+        <div class="gallery">
+          <figure><img src="images/jan10-1445.jpg" alt="Hong Kong tidal-vector map at 2:45 PM on January 10." width="1492" height="770"><figcaption>2:45 PM — January 10</figcaption></figure>
+          <figure><img src="images/jan10-1515.jpg" alt="Hong Kong tidal-vector map at 3:15 PM on January 10." width="1492" height="770"><figcaption>3:15 PM — January 10</figcaption></figure>
+          <figure><img src="images/jan10-1545.jpg" alt="Hong Kong tidal-vector map at 3:45 PM on January 10." width="1492" height="770"><figcaption>3:45 PM — January 10</figcaption></figure>
+          <figure><img src="images/jan10-1615.jpg" alt="Hong Kong tidal-vector map at 4:15 PM on January 10." width="1492" height="770"><figcaption>4:15 PM — January 10</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell callout">
+        <p class="section-label" style="color:#bfe2df">What comes next</p>
+        <h2>This is a planning tool, not a full real-time forecast—yet.</h2>
+        <p>The current version is based on tidal predictions. It does not yet include short-term weather effects, such as wind-driven changes in current or a weather-adjusted 96-hour layer. I would like to build in those factors, create race-venue views, and add tools that make pre-race use even quicker.</p>
+        <a class="button" href="https://github.com/noahyiu-design/hk-digital-tidal-stream-atlas" target="_blank" rel="noopener noreferrer">See the project documentation ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-line">
+      <span>Developed by Noah Yiu · Built with ArcGIS Pro and ArcGIS Online</span>
+      <span><a href="https://github.com/noahyiu-design/hk-digital-tidal-stream-atlas" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a></span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const button = document.querySelector('[data-theme-toggle]');
+      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      button.addEventListener('click', function () {
+        theme = theme === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', theme);
+        button.setAttribute('aria-label', 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' theme');
+      });
+    }());
+  </script>
+</body>
+</html>
