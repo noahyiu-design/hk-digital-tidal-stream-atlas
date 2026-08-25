@@ -6,7 +6,7 @@ authors:
 message: If you use this project, please cite it using the metadata below.
 version: 1.0.0
 date-released: 2026-07-11
-repository-code: https://github.com/your-username/hk-tidal-stream-atlas
+repository-code: https://github.com/noahyiu-design/hk-tidal-stream-atlas
 abstract: Interactive GIS atlas for tidal stream visualization in Hong Kong sailing race planning.
 keywords:
   - GIS
